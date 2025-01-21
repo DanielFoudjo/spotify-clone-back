@@ -46,7 +46,7 @@ public class UserService {
         }
     }
 
-    public ReadUserDTO getAuthentcatedUserFromSecurityContext(){
+    public ReadUserDTO getAuthenticatedUserFromSecurityContext(){
         OAuth2User principal = (OAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = mapOauth2AttributesToUser(principal.getAttributes());
         return userMapper.readUserDTOToUser(user);

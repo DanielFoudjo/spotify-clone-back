@@ -26,18 +26,18 @@ public class AuthResource {
 
     private final ClientRegistration registration;
 
-    public AuthResource(UserService userService, ClientRegistrationRepository registration) {
+    public AuthResource(UserService userService, ClientRegistrationRepository registrations) {
         this.userService = userService;
-        this.registration = registration.findByRegistrationId("okta");
+        this.registration = registrations.findByRegistrationId("okta");
     }
 
     @GetMapping("/get-authenticated-user")
-    public ResponseEntity<ReadUserDTO> getAuthenticatedUser(@AuthenticationPrincipal OAuth2User user){
-        if (user == null){
+    public ResponseEntity<ReadUserDTO> getAuthenticatedUser(@AuthenticationPrincipal OAuth2User user) {
+        if (user == null) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }else {
+        } else {
             userService.syncWithIdp(user);
-            ReadUserDTO userFromAuthentication = userService.getAuthentcatedUserFromSecurityContext();
+            ReadUserDTO userFromAuthentication = userService.getAuthenticatedUserFromSecurityContext();
             return ResponseEntity.ok().body(userFromAuthentication);
         }
     }
@@ -47,7 +47,7 @@ public class AuthResource {
         String issuerUri = registration.getProviderDetails().getIssuerUri();
         String originUrl = request.getHeader(HttpHeaders.ORIGIN);
         Object[] params = {issuerUri, registration.getClientId(), originUrl};
-        String logoutUrl = MessageFormat.format("{0}v2/logout?clientId={1}&returnTo={2}", params);
+        String logoutUrl = MessageFormat.format("{0}v2/logout?client_id={1}&returnTo={2}", params);
         request.getSession().invalidate();
         return ResponseEntity.ok().body(Map.of("logoutUrl", logoutUrl));
     }
